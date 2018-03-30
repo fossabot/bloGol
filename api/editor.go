@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"net/http"
 
+	"github.com/bloGol/bloGol/internal/db"
 	"github.com/gramework/gramework"
 )
 
@@ -24,7 +25,6 @@ const editorForm = `<!DOCTYPE html>
 </html>`
 
 func handlerEditor(ctx *gramework.Context) {
-
 	var err error
 	tpl := template.New("editor")
 	tpl, err = tpl.Parse(editorForm)
@@ -44,6 +44,12 @@ func handlerPublish(ctx *gramework.Context) {
 
 	switch {
 	case title != "" && content != "":
+		post := db.Post{
+			Title:   title,
+			Content: content,
+		}
+		db.DB.Create(&post)
+
 		ctx.SuccessString(
 			"text/html",
 			fmt.Sprintln("<b>title:</b>", title, "<br>", "<b>content:</b>", content),
