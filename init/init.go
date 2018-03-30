@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/bloGol/bloGol/api"
 	"github.com/bloGol/bloGol/internal/config"
 	"github.com/bloGol/bloGol/internal/db"
 )
@@ -24,4 +25,6 @@ func init() {
 	if err := db.Open(filepath.Join(pathPrefix, "test", "development.db")); err != nil {
 		log.Fatalln(err.Error())
 	}
+
+	api.New()
 }
