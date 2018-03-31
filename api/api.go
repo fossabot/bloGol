@@ -7,23 +7,23 @@ import (
 	"github.com/gramework/gramework"
 )
 
-var Router = gramework.New()
+var App *gramework.App
 
 func New() {
-	Router = gramework.New()
+	App = gramework.New()
 
-	Router.GET("/", handlerIndex)
+	App.GET("/", handlerIndex)
 
-	Router.GET("/post/:id", handlerPost)
+	App.GET("/post/:id", handlerPost)
 
-	Router.GET("/editor", handlerEditor)
+	App.GET("/editor", handlerEditor)
 
-	Router.POST("/publish", handlerPublish)
+	App.POST("/publish", handlerPublish)
 
 }
 
 func Run() error {
-	return Router.ListenAndServe(fmt.Sprintf(
+	return App.ListenAndServe(fmt.Sprintf(
 		"%s:%d",
 		config.Config.GetString("server.host"), config.Config.GetInt("server.port"),
 	))
