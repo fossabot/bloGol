@@ -9,25 +9,8 @@ import (
 	"github.com/gramework/gramework"
 )
 
-const editorForm = `<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <title>Make new post</title>
-  </head>
-  <body>
-    <form method="post" action="/publish">
-      <p><b>Title:</b> <input name="title"></p>
-      <p><b>Content:</b> <textarea name="content" cols="45" rows="20"></textarea></p>
-      <p><button type="submit">Publish!</button></p>
-    </form>
-  </body>
-</html>`
-
 func handlerEditor(ctx *gramework.Context) {
-	var err error
-	tpl := template.New("editor")
-	tpl, err = tpl.Parse(editorForm)
+	tpl, err := template.ParseFiles("web/editor.html")
 	if err != nil {
 		ctx.Err500(err.Error())
 	}
