@@ -50,10 +50,7 @@ func handlerPublish(ctx *gramework.Context) {
 		}
 		db.DB.Create(&post)
 
-		ctx.SuccessString(
-			"text/html",
-			fmt.Sprintln("<b>title:</b>", title, "<br>", "<b>content:</b>", content),
-		)
+		ctx.Redirect(fmt.Sprint("/post/", post.ID), http.StatusFound)
 	default:
 		ctx.Error("please, fill and title, and content fields", http.StatusBadRequest)
 	}
