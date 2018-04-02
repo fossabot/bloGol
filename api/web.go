@@ -3,11 +3,17 @@ package api
 import (
 	"html/template"
 	"net/http"
+	"strconv"
 
+	"github.com/bloGol/bloGol/internal/db"
 	"github.com/gramework/gramework"
 )
 
-func webEditor(ctx *gramework.Context) {
+func GetDashboardPage(ctx *gramework.Context) {
+
+}
+
+func GetDashboardEditorPage(ctx *gramework.Context) {
 	tpl, err := template.ParseFiles("web/editor.html")
 	if err != nil {
 		ctx.Err500(err.Error())
@@ -19,8 +25,8 @@ func webEditor(ctx *gramework.Context) {
 	ctx.HTML()
 }
 
-func webIndex(ctx *gramework.Context) {
-	posts, err := getPosts(ctx)
+func GetIndexPage(ctx *gramework.Context) {
+	posts, err := db.GetPosts()
 	if err != nil {
 		ctx.Err500(err.Error())
 		return
@@ -38,15 +44,21 @@ func webIndex(ctx *gramework.Context) {
 	ctx.HTML()
 }
 
-func webPost(ctx *gramework.Context) {
+func GetPostPage(ctx *gramework.Context) {
 	postID, err := ctx.RouteArgErr("id")
 	if err != nil {
 		ctx.Redirect("/", http.StatusFound)
 		return
 	}
 
+	id, err := strconv.Atoi(postID)
+	if err != nil {
+		ctx.Redirect("/", http.StatusFound)
+		return
+	}
+
 	ctx.Request.URI().QueryArgs().Add("id", postID)
-	post, err := postGetByID(ctx)
+	post, err := db.GetPostByID(id)
 	if err != nil {
 		ctx.Err500(err.Error())
 		return

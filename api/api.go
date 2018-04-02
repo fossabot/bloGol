@@ -1,10 +1,14 @@
 package api
 
 import (
+	"encoding/binary"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/bloGol/bloGol/internal/config"
+	"github.com/bloGol/bloGol/internal/db"
+	"github.com/bloGol/bloGol/pkg/models"
 	"github.com/gramework/gramework"
 )
 
@@ -13,19 +17,21 @@ var App *gramework.App
 func New() {
 	App = gramework.New()
 
-	App.GET("/", webIndex)
+	App.GET("/", GetIndexPage)
+	App.GET("/posts/:id", GetPostPage)
 
-	App.GET("/post/:id", webPost)
-
-	App.GET("/editor", webEditor)
+	dashboard := App.Sub("/dashboard")
+	dashboard.GET("/", GetDashboardPage)
+	dashboard.GET("/editor", GetDashboardEditorPage)
 
 	api := App.Sub("/api")
 
-	post := api.Sub("/post")              // '/api/post'
-	post.GET("s", apiPosts)               // '/api/posts'
-	post.GET("/getById", apiPostGetByID)  // '/api/post/getById'
-	post.POST("/create", apiPostCreate)   // '/api/post/create'
-	post.DELETE("/remove", apiPostRemove) // '/api/post/remove'
+	post := api.Sub("/posts")
+	post.GET("/", GetPosts)
+	post.POST("/", CreatePost)
+	post.GET("/:id", GetPostByID)
+	post.DELETE("/:id", DeletePost)
+	post.PATCH("/:id", EditPost)
 }
 
 func Run() error {
@@ -35,8 +41,8 @@ func Run() error {
 	))
 }
 
-func apiPosts(ctx *gramework.Context) {
-	posts, err := getPosts(ctx)
+func GetPosts(ctx *gramework.Context) {
+	posts, err := db.GetPosts()
 	if err != nil {
 		ctx.Err500(err.Error())
 		return
@@ -46,8 +52,14 @@ func apiPosts(ctx *gramework.Context) {
 	ctx.JSON(posts)
 }
 
-func apiPostGetByID(ctx *gramework.Context) {
-	post, err := postGetByID(ctx)
+func CreatePost(ctx *gramework.Context) {
+	post := &models.Post{
+		Title:   string(ctx.FormValue("title")),
+		Content: string(ctx.FormValue("content")),
+	}
+
+	var err error
+	post, err = db.CreatePost(post)
 	if err != nil {
 		ctx.Err500(err.Error())
 		return
@@ -57,8 +69,20 @@ func apiPostGetByID(ctx *gramework.Context) {
 	ctx.JSON(post)
 }
 
-func apiPostCreate(ctx *gramework.Context) {
-	post, err := postCreate(ctx)
+func GetPostByID(ctx *gramework.Context) {
+	routeID, err := ctx.RouteArgErr("id")
+	if err != nil {
+		ctx.Err500(err.Error())
+		return
+	}
+
+	id, err := strconv.Atoi(routeID)
+	if err != nil {
+		ctx.Err500(err.Error())
+		return
+	}
+
+	post, err := db.GetPostByID(id)
 	if err != nil {
 		ctx.Err500(err.Error())
 		return
@@ -68,8 +92,9 @@ func apiPostCreate(ctx *gramework.Context) {
 	ctx.JSON(post)
 }
 
-func apiPostRemove(ctx *gramework.Context) {
-	if err := postRemove(ctx); err != nil {
+func DeletePost(ctx *gramework.Context) {
+	id := int(binary.BigEndian.Uint64(ctx.QueryArgs().Peek("id")))
+	if err := db.DeletePost(id); err != nil {
 		ctx.Err500(err.Error())
 		return
 	}
@@ -77,13 +102,6 @@ func apiPostRemove(ctx *gramework.Context) {
 	ctx.SetStatusCode(http.StatusOK)
 }
 
-func apiPostPublish(ctx *gramework.Context) {
-	post, err := postPublish(ctx)
-	if err != nil {
-		ctx.Err500(err.Error())
-		return
-	}
+func EditPost(ctx *gramework.Context) {
 
-	ctx.SetStatusCode(http.StatusOK)
-	ctx.JSON(post)
 }
