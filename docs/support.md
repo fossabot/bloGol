@@ -1,11 +1,11 @@
 # How to get support for bloGol :handshake:
-For **help**, **support** and **questions** please use **[Discord](https://discord.gg/WREHgFn)** :ambulance:
+For **help**, **support** and **questions** please use [**Discord**](https://discord.gg/WREHgFn) or [**Telegram**](https://t.me/bloGol)! :ambulance:
 
 Please **_do not_** raise an issue on GitHub.
 
 We have a **#support** channel in our **[Discord](https://discord.gg/77WFCrB)** team where you can get quick answers, help with debugging weird issues, and general help with any aspect of bloGol.
 
-Please go to https://discord.gg/WREHgFn for join our community. Is the fastest way to get help.
+Please go to [Discord](https://discord.gg/WREHgFn) or [Telegram](https://t.me/bloGol) for join our community. Is the fastest way to get help.
 
 Issues which are not bug reports will be closed.
 
