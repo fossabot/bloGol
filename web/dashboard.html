@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+  </head>
+  <body>
+    <div id="dashboard">
+      <div class="row">
+        <div class="col-md-4">
+          <h2>My posts</h2>
+          <div>
+            <div v-for="(post, i) in posts" :key="post.id">
+              <h4>
+                <a v-bind:href="'/dashboard/editor/' + post.id">${i}. ${post.title}</a>
+                <button v-on:click="deletePost(i)">x</button>
+              </h4>
+              <p>${post.content}</p>
+            </div>
+          </div>
+          <div class="input-group">
+            <div>
+              <input placeholder="New post" v-on:keyup.enter="createPost" v-model="newPost.title">
+            </div>
+            <div>
+              <textarea v-on:keyup.enter="createPost" v-model="newPost.content"></textarea>
+            </div>
+            <div>
+              <button class="btn btn-primary" type="button" v-on:click="createPost">Create</button>
+            </div>
+          </div>
+          <!-- /input-group -->
+        </div>
+      </div>
+    </div>
+    
+    <script src="//cdn.jsdelivr.net/npm/vue@2.5.17-beta.0/dist/vue.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/vue-resource@1.5.0"></script>
+    <script>
+      new Vue({
+        delimiters: ['${', '}'],
+        el: '#dashboard',
+        data: {
+          posts: [],
+          newPost: {}
+        },
+        created: function() {
+          this.$http.get('/api/posts').then(response => {
+            this.posts = response.body ? response.body : []
+          })
+        },
+        methods: {
+          createPost: function() {
+            this.$http.post('/api/posts', this.newPost).then(response => {
+              this.newPost.id = response.created
+              this.posts.push(this.newPost)
+              console.log("post created!")
+              console.log(this.newPost)
+              this.newPost = {}
+            }, response => {
+              console.log("ERROR:", response) // error
+            });
+          },
+          deletePost: function(i) {
+            this.$http.delete('/api/posts/' + this.posts[i].id).then(response => {
+              console.log("Removing:", this.posts[i]);
+              this.posts.splice(i, 1)
+              console.log("Post deleted!")
+            }, response => {
+              console.log("ERROR:", response) // error
+            })
+          }
+        }
+      })
+    </script>
+  </body>
+</html>

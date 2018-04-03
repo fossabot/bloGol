@@ -10,7 +10,15 @@ import (
 )
 
 func GetDashboardPage(ctx *gramework.Context) {
+	tpl, err := template.ParseFiles("web/dashboard.html")
+	if err != nil {
+		ctx.Err500(err.Error())
+	}
 
+	if err = tpl.Execute(ctx.Response.BodyWriter(), nil); err != nil {
+		ctx.Err500(err.Error())
+	}
+	ctx.HTML()
 }
 
 func GetDashboardEditorPage(ctx *gramework.Context) {
