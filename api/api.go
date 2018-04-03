@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/binary"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -10,6 +9,7 @@ import (
 	"github.com/bloGol/bloGol/internal/db"
 	"github.com/bloGol/bloGol/pkg/models"
 	"github.com/gramework/gramework"
+	log "github.com/kirillDanshin/dlog"
 )
 
 var App *gramework.App
@@ -53,12 +53,14 @@ func GetPosts(ctx *gramework.Context) {
 }
 
 func CreatePost(ctx *gramework.Context) {
-	post := &models.Post{
-		Title:   string(ctx.FormValue("title")),
-		Content: string(ctx.FormValue("content")),
+	log.D(ctx.RequestCtx)
+	post := new(models.Post)
+	err := ctx.UnJSON(post)
+	if err != nil {
+		ctx.BadRequest(err)
+		return
 	}
 
-	var err error
 	post, err = db.CreatePost(post)
 	if err != nil {
 		ctx.Err500(err.Error())
@@ -93,7 +95,18 @@ func GetPostByID(ctx *gramework.Context) {
 }
 
 func DeletePost(ctx *gramework.Context) {
-	id := int(binary.BigEndian.Uint64(ctx.QueryArgs().Peek("id")))
+	routeID, err := ctx.RouteArgErr("id")
+	if err != nil {
+		ctx.Err500(err.Error())
+		return
+	}
+
+	id, err := strconv.Atoi(routeID)
+	if err != nil {
+		ctx.Err500(err.Error())
+		return
+	}
+
 	if err := db.DeletePost(id); err != nil {
 		ctx.Err500(err.Error())
 		return
@@ -103,5 +116,5 @@ func DeletePost(ctx *gramework.Context) {
 }
 
 func EditPost(ctx *gramework.Context) {
-
+	ctx.SetStatusCode(http.StatusOK)
 }
