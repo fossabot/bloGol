@@ -23,6 +23,8 @@ func Open(path string) error {
 	}
 
 	DB.CreateTable(&models.Post{})
+	DB.CreateTable(&models.Author{})
+	DB.CreateTable(&models.Tag{})
 
 	return nil
 }
