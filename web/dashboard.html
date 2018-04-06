@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+  </head>
+  <body>
+    <div id="dashboard">
+      <div class="row">
+        <div class="col-md-4">
+          <h2>My posts</h2>
+          <div>
+            <div v-for="(post, i) in posts" :key="post.id">
+              <h4>
+                <a v-bind:href="'/dashboard/editor/' + post.id">${i}. ${post.title}</a>
+                <button v-on:click="deletePost(i)">x</button>
+              </h4>
+              <p>${post.content}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <script src="//cdn.jsdelivr.net/npm/vue@2.5.17-beta.0/dist/vue.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/vue-resource@1.5.0"></script>
+    <script>
+      new Vue({
+        delimiters: ['${', '}'],
+        el: '#dashboard',
+        data: {
+          posts: []
+        },
+        created: function() {
+          this.$http.get('/api/posts').then(response => {
+            this.posts = response.body ? response.body : []
+          })
+        },
+        methods: {
+          deletePost: function(i) {
+            this.$http.delete('/api/posts/' + this.posts[i].id).then(response => {
+              console.log("Removing:", this.posts[i]);
+              this.posts.splice(i, 1)
+              console.log("Post deleted!")
+            }, response => {
+              console.log("ERROR:", response) // error
+            })
+          }
+        }
+      })
+    </script>
+  </body>
+</html>

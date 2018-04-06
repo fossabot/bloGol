@@ -23,6 +23,7 @@ func New() {
 	dashboard := App.Sub("/dashboard")
 	dashboard.GET("/", GetDashboardPage)
 	dashboard.GET("/editor", GetDashboardEditorPage)
+	dashboard.GET("/editor/:id", GetDashboardEditorPage)
 
 	api := App.Sub("/api")
 
@@ -116,5 +117,37 @@ func DeletePost(ctx *gramework.Context) {
 }
 
 func EditPost(ctx *gramework.Context) {
+	log.D(ctx)
+	post := new(models.Post)
+	err := ctx.UnJSON(post)
+	if err != nil {
+		ctx.BadRequest(err)
+		return
+	}
+
+	routeID, err := ctx.RouteArgErr("id")
+	if err != nil {
+		ctx.Err500(err.Error())
+		return
+	}
+
+	if _, err = strconv.Atoi(routeID); err != nil {
+		ctx.Err500(err.Error())
+		return
+	}
+
+	post, err = db.UpdatePost(post)
+	if err != nil {
+		ctx.Err500(err.Error())
+		return
+	}
+
+	post, err = db.GetPostByID(post.ID)
+	if err != nil {
+		ctx.Err500(err.Error())
+		return
+	}
+
 	ctx.SetStatusCode(http.StatusOK)
+	ctx.JSON(post)
 }
