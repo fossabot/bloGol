@@ -1,6 +1,10 @@
 package db
 
-import "github.com/bloGol/bloGol/pkg/models"
+import (
+	"time"
+
+	"github.com/bloGol/bloGol/pkg/models"
+)
 
 func GetPostByID(id int) (*models.Post, error) {
 	post := models.Post{ID: id}
@@ -9,7 +13,15 @@ func GetPostByID(id int) (*models.Post, error) {
 }
 
 func CreatePost(post *models.Post) (*models.Post, error) {
+	post.CreatedAt = time.Now()
+	post.UpdatedAt = time.Now()
 	err := DB.Create(post).Error
+	return post, err
+}
+
+func UpdatePost(post *models.Post) (*models.Post, error) {
+	post.UpdatedAt = time.Now()
+	err := DB.Model(post).Update(post).Error
 	return post, err
 }
 

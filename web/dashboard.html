@@ -18,18 +18,6 @@
               <p>${post.content}</p>
             </div>
           </div>
-          <div class="input-group">
-            <div>
-              <input placeholder="New post" v-on:keyup.enter="createPost" v-model="newPost.title">
-            </div>
-            <div>
-              <textarea v-on:keyup.enter="createPost" v-model="newPost.content"></textarea>
-            </div>
-            <div>
-              <button class="btn btn-primary" type="button" v-on:click="createPost">Create</button>
-            </div>
-          </div>
-          <!-- /input-group -->
         </div>
       </div>
     </div>
@@ -41,8 +29,7 @@
         delimiters: ['${', '}'],
         el: '#dashboard',
         data: {
-          posts: [],
-          newPost: {}
+          posts: []
         },
         created: function() {
           this.$http.get('/api/posts').then(response => {
@@ -50,17 +37,6 @@
           })
         },
         methods: {
-          createPost: function() {
-            this.$http.post('/api/posts', this.newPost).then(response => {
-              this.newPost.id = response.created
-              this.posts.push(this.newPost)
-              console.log("post created!")
-              console.log(this.newPost)
-              this.newPost = {}
-            }, response => {
-              console.log("ERROR:", response) // error
-            });
-          },
           deletePost: function(i) {
             this.$http.delete('/api/posts/' + this.posts[i].id).then(response => {
               console.log("Removing:", this.posts[i]);
