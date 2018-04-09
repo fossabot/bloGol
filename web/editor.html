@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Make new post</title>
+  </head>
+  <body>
+    <div id="dashboard">
+      <input hidden="false" v-on:keyup.enter="sendPost" :value="post.id">
+      <input hidden="false" v-on:keyup.enter="sendPost" :value="post.status">
+      <input hidden="false" v-on:keyup.enter="sendPost" :value="post.visibility">
+      <div>
+        <input v-on:keyup.enter="sendPost" v-model="post.title" placeholder="Post title" v-on:value="post.title">
+      </div>
+      <div>
+        <textarea v-on:keyup.enter="sendPost" v-model="post.raw"></textarea>
+      </div>
+      <div>
+        <button type="button" v-on:click="sendPost">${action}</button>
+      </div>
+    </div>
+
+    <script src="//cdn.jsdelivr.net/npm/vue@2.5.17-beta.0/dist/vue.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/vue-resource@1.5.0"></script>
+    <script>
+      new Vue({
+        delimiters: ['${', '}'],
+        el: '#dashboard',
+        data: {
+          post: {
+            id: 0,
+            status: 'draft',
+            visibility: 'hidden'
+          },
+          action: 'Create new!'
+        },
+        created: function() {
+          var url = window.location.href.replace(/\/$/, '');
+          var lastSeg = url.substr(url.lastIndexOf('/') + 1);
+          if (lastSeg == 'editor') {
+            console.log("no edited post");
+            return
+          }
+
+          console.log('this is edited post');
+          this.$http.get('/api/posts/' + lastSeg).then(response => {
+            this.post = response.body
+            this.action = 'Update!'
+          }, response => {
+            console.log("ERROR:", response) // error
+          })
+        },
+        methods: {
+          sendPost: function() {
+            if (this.post.id == 0) {
+              console.log("create new post");
+              this.createPost();
+            } else {
+              console.log("update current post");
+              this.updatePost();
+            }
+          },
+          createPost: function() {
+            this.$http.post('/api/posts', this.post).then(response => {
+              this.post = response.body
+              console.log("post created!")
+              console.log(this.post)
+              window.location.href = '/dashboard/editor/' + this.post.id;
+            }, response => {
+              console.log("ERROR:", response) // error
+            });
+          },
+          updatePost: function() {
+            this.$http.patch('/api/posts/' + this.post.id, this.post).then(response => {
+              this.post = response.body
+              console.log(this.post)
+              console.log("post updated!")
+            }, response => {
+              console.log("ERROR:", response) // error
+            });
+          }
+        }
+      })
+    </script>
+  </body>
+</html>

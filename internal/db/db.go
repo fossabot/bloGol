@@ -1,6 +1,7 @@
 package db
 
 import (
+	"github.com/bloGol/bloGol/pkg/models"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )
@@ -21,7 +22,9 @@ func Open(path string) error {
 		return err
 	}
 
-	DB.CreateTable(&Post{})
+	DB.CreateTable(&models.Post{})
+	DB.CreateTable(&models.Author{})
+	DB.CreateTable(&models.Tag{})
 
 	return nil
 }

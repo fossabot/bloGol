@@ -1,0 +1,15 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>All posts</title>
+  </head>
+  <body>
+    {{range .}}
+      <h1><a href="/posts/{{.ID}}">{{.Title}}</a></h1>
+      <p>{{.Raw}}</p>
+      <hr>
+    {{else}}
+      No posts, sorry
+    {{end}}
+  </body>
+</html>
