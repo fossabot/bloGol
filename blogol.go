@@ -5,11 +5,12 @@ import (
 
 	"github.com/bloGol/bloGol/api"
 	_ "github.com/bloGol/bloGol/init"
-	"github.com/bloGol/bloGol/internal/db"
+	"github.com/bloGol/bloGol/internal/config"
+	"github.com/bloGol/bloGol/internal/database"
 )
 
 func main() {
-	defer db.DB.Close()
+	defer database.DB.Close()
 	log.Println("Starting...")
-	api.Run()
+	api.API.Run(config.Config)
 }

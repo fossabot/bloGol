@@ -6,26 +6,28 @@ import (
 	"strconv"
 
 	"github.com/bloGol/bloGol/internal/config"
-	"github.com/bloGol/bloGol/internal/db"
+	"github.com/bloGol/bloGol/internal/database"
 	"github.com/bloGol/bloGol/pkg/models"
 	"github.com/gramework/gramework"
 	log "github.com/kirillDanshin/dlog"
 )
 
-var App *gramework.App
+type App struct{ *gramework.App }
 
-func New() {
-	App = gramework.New()
+var API *App
 
-	App.GET("/", GetIndexPage)
-	App.GET("/posts/:id", GetPostPage)
+func New() *App {
+	app := gramework.New()
 
-	dashboard := App.Sub("/dashboard")
+	app.GET("/", GetIndexPage)
+	app.GET("/posts/:id", GetPostPage)
+
+	dashboard := app.Sub("/dashboard")
 	dashboard.GET("/", GetDashboardPage)
 	dashboard.GET("/editor", GetDashboardEditorPage)
 	dashboard.GET("/editor/:id", GetDashboardEditorPage)
 
-	api := App.Sub("/api")
+	api := app.Sub("/api")
 
 	post := api.Sub("/posts")
 	post.GET("/", GetPosts)
@@ -33,17 +35,19 @@ func New() {
 	post.GET("/:id", GetPostByID)
 	post.DELETE("/:id", DeletePost)
 	post.PATCH("/:id", EditPost)
+
+	return &App{app}
 }
 
-func Run() error {
-	return App.ListenAndServe(fmt.Sprintf(
+func (app *App) Run(cfg *config.Configuration) error {
+	return app.ListenAndServe(fmt.Sprintf(
 		"%s:%d",
-		config.Config.GetString("server.host"), config.Config.GetInt("server.port"),
+		cfg.GetString("server.host"), cfg.GetInt("server.port"),
 	))
 }
 
 func GetPosts(ctx *gramework.Context) {
-	posts, err := db.GetPosts()
+	posts, err := database.DB.GetPosts()
 	if err != nil {
 		ctx.Err500(err.Error())
 		return
@@ -62,7 +66,7 @@ func CreatePost(ctx *gramework.Context) {
 		return
 	}
 
-	post, err = db.CreatePost(post)
+	post, err = database.DB.CreatePost(post)
 	if err != nil {
 		ctx.Err500(err.Error())
 		return
@@ -85,7 +89,7 @@ func GetPostByID(ctx *gramework.Context) {
 		return
 	}
 
-	post, err := db.GetPostByID(id)
+	post, err := database.DB.GetPostByID(id)
 	if err != nil {
 		ctx.Err500(err.Error())
 		return
@@ -108,7 +112,7 @@ func DeletePost(ctx *gramework.Context) {
 		return
 	}
 
-	if err := db.DeletePost(id); err != nil {
+	if err := database.DB.DeletePost(id); err != nil {
 		ctx.Err500(err.Error())
 		return
 	}
@@ -136,13 +140,13 @@ func EditPost(ctx *gramework.Context) {
 		return
 	}
 
-	post, err = db.UpdatePost(post)
+	post, err = database.DB.UpdatePost(post)
 	if err != nil {
 		ctx.Err500(err.Error())
 		return
 	}
 
-	post, err = db.GetPostByID(post.ID)
+	post, err = database.DB.GetPostByID(post.ID)
 	if err != nil {
 		ctx.Err500(err.Error())
 		return

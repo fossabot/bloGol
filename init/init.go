@@ -7,7 +7,7 @@ import (
 
 	"github.com/bloGol/bloGol/api"
 	"github.com/bloGol/bloGol/internal/config"
-	"github.com/bloGol/bloGol/internal/db"
+	"github.com/bloGol/bloGol/internal/database"
 )
 
 var pathPrefix = filepath.Join(
@@ -15,16 +15,20 @@ var pathPrefix = filepath.Join(
 )
 
 func init() {
-	if err := config.Open("./configs"); err != nil {
+	var err error
+	config.Config, err = config.Open("./configs")
+	if err != nil {
 		log.Fatalln(err.Error())
 	}
 
 	log.Println("url:", config.Config.GetString("url"))
 	log.Println("server.host:", config.Config.GetString("server.host"))
 	log.Println("server.port:", config.Config.GetInt("server.port"))
-	if err := db.Open(filepath.Join(pathPrefix, "test", "development.db")); err != nil {
+
+	database.DB, err = database.Open(filepath.Join(pathPrefix, "test", "development.db"))
+	if err != nil {
 		log.Fatalln(err.Error())
 	}
 
-	api.New()
+	api.API = api.New()
 }

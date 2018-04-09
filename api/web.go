@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/bloGol/bloGol/internal/db"
+	"github.com/bloGol/bloGol/internal/database"
 	"github.com/gramework/gramework"
 )
 
@@ -34,7 +34,7 @@ func GetDashboardEditorPage(ctx *gramework.Context) {
 }
 
 func GetIndexPage(ctx *gramework.Context) {
-	posts, err := db.GetPosts()
+	posts, err := database.DB.GetPosts()
 	if err != nil {
 		ctx.Err500(err.Error())
 		return
@@ -66,7 +66,7 @@ func GetPostPage(ctx *gramework.Context) {
 	}
 
 	ctx.Request.URI().QueryArgs().Add("id", postID)
-	post, err := db.GetPostByID(id)
+	post, err := database.DB.GetPostByID(id)
 	if err != nil {
 		ctx.Err500(err.Error())
 		return

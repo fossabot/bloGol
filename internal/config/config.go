@@ -2,11 +2,20 @@ package config
 
 import "github.com/spf13/viper"
 
-var Config = viper.New()
+type Configuration struct{ *viper.Viper }
 
-func Open(path string) error {
-	Config.AddConfigPath(path)
-	Config.SetConfigName("development")
-	Config.SetConfigType("yaml")
-	return Config.ReadInConfig()
+var Config *Configuration
+
+func Open(path string) (*Configuration, error) {
+	cfg := viper.New()
+
+	cfg.AddConfigPath(path)
+	cfg.SetConfigName("development")
+	cfg.SetConfigType("yaml")
+
+	if err := cfg.ReadInConfig(); err != nil {
+		return nil, err
+	}
+
+	return &Configuration{cfg}, nil
 }
